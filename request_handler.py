@@ -4,8 +4,8 @@ def parse_request(request):
     returned. Anything other than GET raises a an Exception (405 error). """
     first_rn = request.find('\r\n')
     first_line = request[:first_rn]
-    if first_line.split()[0] == 'GET':
-        uri = first_line.split()[1]
+    method, uri, protocol = first_line.split()
+    if method == 'GET':
         return uri
     else:
         raise ParseException("405: Method not allowed. Only GET is allowed.")
@@ -13,3 +13,6 @@ def parse_request(request):
 class ParseException(Exception):
     """An empty class to pass useful exceptions."""
     pass
+
+# line 7 was changed to the current version
+# based upon Cris's suggestion in class.
