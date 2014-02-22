@@ -13,5 +13,5 @@ If the request is a GET request, the uri is then passed along.
 
 * **test.py** The tests at this point are quite simple. One passes along POST, DELETE, and PUT requests to check that an exception is raised. The other passes a GET request and makes sure that the correct is returned.
 
-* **http-server.py** is the result of **request_handler.py** being merged with work from my classmates to create.
+* **http-server.py** is the result of **request_handler.py** being merged with work from my classmates to create a working server. Some code is verbatim from my classmates, much has been tweaked by me based upon code review or my own ideas.
 
