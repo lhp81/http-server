@@ -27,15 +27,11 @@ def http_server():
                 uri = parse_request(msg)
                 resource, mimetype = map_uri(uri)
 
-            except Error404:
-                response = build_response(resource, mimetype, '404')
+            except (Error404, ParseException) as e:
+                response = build_response(e.message, 'text/plain', e.code)
 
-            except Error405:
-                response = build_response(resource, mimetype, '405')
-
-            except BaseException as e:
-                response = build_response(resource, mimetype, '500')
-                print(e)
+            except:
+                response = build_response("500 Internal Server Error", 'text/plain', '500')
 
             else:
                 response = build_response(resource, mimetype)
@@ -46,8 +42,7 @@ def http_server():
                 conn.close()
 
     finally:
-        #Make sure the socket is closed when we can't continue.
-        print("Closing the socket.")
+        #Make sure the socket is closed if we can't continue.
         server_socket.close()
 
 
@@ -66,7 +61,6 @@ def receive_message(conn, buffsize=4096):
     conn.shutdown(socket.SHUT_RD)
 
     return msg
-
 
 # the below is based upon our in-class code teardown of the code I originally
 # wrote. -lp
@@ -106,18 +100,14 @@ def build_response(message, mimetype, code="OK 200"):
         message = message.encode('utf-8')
     bytelength = len(message)
     header_list = []
-    status_line = 'HTTP/1.1  %s \r\n' % code
-    timestamp = 'Date: %s \r\n' % str(formatdate(usegmt=True))
-    server_line = 'Server: Team Python\r\n'
-    content_type = 'Content-Type: ' + mimetype + '; char=UTF-8\r\n'
-    content_len = 'Content-Length: %s \r\n' % bytelength
-    header_list.append(content_len)
-    header_list.append('\r\n')
-    header_list.append(message)
-    #header = '\r\n'.join(header_list)
-    total = ''.join(header_list)
-    print total
-    return total
+    header_list.append('HTTP/1.1  %s \r\n' % code)
+    header_list.append('Date: %s \r\n' % str(formatdate(usegmt=True)))
+    header_list.append('Server: Team Python\r\n')
+    header_list.append('Content-Type: %s; char=UTF-8\r\n' % mimetype)
+    header_list.append('Content-Length: %s \r\n' % bytelength)
+    header_list.append('\r\n%s' % message)
+    header = ''.join(header_list)
+    return header
 
 
 class Error404(BaseException):
