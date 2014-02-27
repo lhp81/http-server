@@ -2,7 +2,7 @@ from email.utils import formatdate
 from mimetypes import guess_type
 import socket
 from os.path import isfile, isdir
-from os import listdir
+from os import listdir, getcwd
 
 
 def http_server():
@@ -31,14 +31,15 @@ def http_server():
                 response = build_response(e.message, 'text/plain', e.code)
 
             except:
-                response = build_response("500 Internal Server Error", 'text/plain', '500')
+                response = build_response("500 Internal Server Error",
+                                          'text/plain', '500')
 
             else:
                 response = build_response(resource, mimetype)
 
             finally:
                 conn.sendall(response)
-                conn.shutdown(socket.SHUT_WR)
+                # conn.shutdown(socket.SHUT_WR)
                 conn.close()
 
     finally:
@@ -80,17 +81,23 @@ def map_uri(uri):
     """
     #URIs come in based in root. Make root the 'webroot' directory.
     filepath = 'webroot' + uri
+
     if isfile(filepath):
         with open(filepath, 'rb') as infile:
             message = infile.read()
+
         return (message, guess_type(filepath)[0])
 
     if isdir(filepath):
         contents = listdir(filepath)
+        for i in range(len(contents)):
+            if isdir('%s/webroot/%s' % (getcwd(), contents[i])):
+                contents[i] += '/'
+
         return ('\n'.join(contents), 'text/plain')
 
     #If what we received was not a file or a directory, raise an Error404.
-    raise Error404
+    raise Error404("404: File not found.")
 
 
 def build_response(message, mimetype, code="OK 200"):
