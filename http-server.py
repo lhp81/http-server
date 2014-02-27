@@ -1,8 +1,8 @@
-from email.utils import formatdate
-from mimetypes import guess_type
 import socket
 from os.path import isfile, isdir
 from os import listdir, getcwd
+from email.utils import formatdate
+from mimetypes import guess_type
 
 
 def http_server():
@@ -63,16 +63,19 @@ def receive_message(conn, buffsize=4096):
 
     return msg
 
-# the below is based upon our in-class code teardown of the code I originally
-# wrote. -lp
+# the below is a rewrite of my original code based on our in-class breakdown of
+# the original. -lp
+
 
 def parse_request(request):
     first_line = request.split('\r\n', 1)
+    first_line = first_line[0]
     method, uri, protocol = first_line.split()
     if method == 'GET':
         return uri
     else:
         raise ParseException("405: Method not allowed. Only GET is allowed.")
+
 
 def map_uri(uri):
     """Given a uri, looks up the corresponding file in the file system.
@@ -99,6 +102,8 @@ def map_uri(uri):
     #If what we received was not a file or a directory, raise an Error404.
     raise Error404("404: File not found.")
 
+
+# I rewrote this from James's code after our in-class discussion. -lp
 
 def build_response(message, mimetype, code="OK 200"):
     """Build a response with the specified code and content."""
