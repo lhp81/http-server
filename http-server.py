@@ -27,8 +27,8 @@ def http_server():
                 uri = parse_request(msg)
                 resource, mimetype = map_uri(uri)
 
-            except (Error404, ParseException) as e:
-                response = build_response(e.message, 'text/plain', e.code)
+            except (Error404, ParseException) as err:
+                response = build_response(err.message, 'text/plain', err.code)
 
             except:
                 response = build_response("500 Internal Server Error",
